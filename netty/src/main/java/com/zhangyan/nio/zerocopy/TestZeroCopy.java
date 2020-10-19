@@ -29,8 +29,8 @@ import java.nio.channels.FileChannel;
  */
 public class TestZeroCopy {
 
-    public static void main(String[] args) {
-        TestZeroCopy channel = new TestZeroCopy();
+    public static void main(String[] args) throws IOException {
+        /*TestZeroCopy channel = new TestZeroCopy();
         try {
             if (args.length < 3) {
                 System.out.println("usage: JioChannel <source> "+
@@ -47,7 +47,10 @@ public class TestZeroCopy {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        mmap4zeroCopy0("/Users/zhangyan17/Desktop/abc");
+
     }
     /**
      * 传统方式的复制
@@ -81,6 +84,33 @@ public class TestZeroCopy {
             }
         }
     }
+
+    /**
+     * mmap的方式复制
+     *
+     * @throws IOException
+     */
+    public static void mmap4zeroCopy0(String file) throws IOException {
+        FileChannel source = null;
+        try {
+            source = new RandomAccessFile(file, "rw").getChannel();
+
+            // 建立映射关系
+            MappedByteBuffer inMappedBuf =
+                    source.map(FileChannel.MapMode.READ_WRITE, 0, source.size());
+
+            String str = "efg";
+            byte[] bytes = str.getBytes();
+
+            inMappedBuf.put(bytes);
+
+        } finally {
+            if (source != null) {
+                source.close();
+            }
+        }
+    }
+
 
     /**
      * mmap的方式复制
