@@ -1,7 +1,11 @@
 // epoll的核心实现对应于一个epoll描述符
+// 主要用于epoll_pwait()时候，判定epfd-file->eventpoll->rdlist（就绪fd）是否为空，如果为空并且epoll_pwait()为阻塞调用，
+// 那么将当前进程将被挂到epfd-file->eventpoll->wq中，并且当前进程进入阻塞等待，
+// 直到rdlist非空的时候唤起epfd-file->eventpoll->poll_wait链表中的进程（互斥唤起和非互斥唤起？）唤起的回调函数默认为wake_up_interruptible或者wake_up
 struct eventpoll {
     spinlock_t lock;
     struct mutex mtx;
+    // 用于epoll_pwait()事件的等待队列
     wait_queue_head_t wq; // sys_epoll_wait() 等待在这里
     // f_op->poll()  使用的, 被其他事件通知机制利用的wait_address
     wait_queue_head_t poll_wait;
