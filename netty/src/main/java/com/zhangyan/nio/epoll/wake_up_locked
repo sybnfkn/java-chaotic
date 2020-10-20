@@ -1,0 +1,25 @@
+
+/*
+ * 当我们调用 epoll_wait 的时候，调用进程被挂起，
+ 在内核看来调用进程陷入休眠。如果该 epoll 实例上对应描述字有事件发生，这个休眠进程应该被唤醒，
+ 以便及时处理事件。下面的代码就是起这个作用的，wake_up_locked 函数唤醒当前 eventpoll 上的等待进程。
+ */
+if (waitqueue_active(&ep->wq)) {
+    if ((epi->event.events & EPOLLEXCLUSIVE) &&
+                !((unsigned long)key & POLLFREE)) {
+        switch ((unsigned long)key & EPOLLINOUT_BITS) {
+        case POLLIN:
+            if (epi->event.events & POLLIN)
+                ewake = 1;
+            break;
+        case POLLOUT:
+            if (epi->event.events & POLLOUT)
+                ewake = 1;
+            break;
+        case 0:
+            ewake = 1;
+            break;
+        }
+    }
+    wake_up_locked(&ep->wq);
+}

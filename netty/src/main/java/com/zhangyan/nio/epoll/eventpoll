@@ -5,13 +5,13 @@
 struct eventpoll {
     spinlock_t lock;
     struct mutex mtx;
-    // 用于epoll_pwait()事件的等待队列
+    // 用于epoll_pwait()事件的等待队列，存放的是执行epoll_wait从而等待的进程队列
     wait_queue_head_t wq; // sys_epoll_wait() 等待在这里
     // f_op->poll()  使用的, 被其他事件通知机制利用的wait_address
     wait_queue_head_t poll_wait;
-    //已就绪的需要检查的epitem 列表
+    //这里存放的是事件就绪的fd列表，链表的每个元素是下面的epitem
     struct list_head rdllist;
-    //保存所有加入到当前epoll的文件对应的epitem
+    //这是用来快速查找fd的红黑树，保存所有加入到当前epoll的文件对应的epitem
     struct rb_root rbr;
     // 当正在向用户空间复制数据时, 产生的可用文件
     struct epitem *ovflist;
@@ -22,3 +22,9 @@ struct eventpoll {
     int visited;
     struct list_head visited_list_link;
 }
+
+
+
+// 每当我们调用 epoll_ctl 增加一个 fd 时，内核就会为我们创建出一个 epitem 实例，
+// 并且把这个实例作为红黑树的一个子节点，增加到 eventpoll 结构体中的红黑树中，
+// 对应的字段是 rbr。这之后，查找每一个 fd 上是否有事件发生都是通过红黑树上的 epitem 来操作。

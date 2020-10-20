@@ -1,3 +1,14 @@
+// 通过这个文件的 wait_queue_entry_t 对象找到对应的 epitem 对象，
+// 因为 eppoll_entry 对象里保存了 wait_queue_entry_t，
+// 根据 wait_queue_entry_t 这个对象的地址就可以简单计算出 eppoll_entry 对象的地址，
+// 从而可以获得 epitem 对象的地址。这部分工作在 ep_item_from_wait 函数中完成。一旦获得 epitem 对象，就可以寻迹找到 eventpoll 实例。
+
+
+
+
+
+
+
 //回调函数, 当我们监听的fd发生状态改变时, 它会被调用.
 static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync, void *key)
 {

@@ -2,7 +2,7 @@
 struct epitem {
     // 挂载到eventpoll 的红黑树节点
     struct rb_node rbn;
-    // 挂载到eventpoll.rdllist 的节点
+    // 将这个epitem连接到eventpoll 里面的rdllist的list指针
     struct list_head rdllink;
     // 连接到ovflist 的指针
     struct epitem *next;
@@ -16,10 +16,12 @@ struct epitem {
     // (取决于对应文件类型的实现),
     // 所以需要使用链表
     struct list_head pwqlist;
-    // 当前epitem 的所有者
+    // 当前epollitem所属的eventpoll
     struct eventpoll *ep;
     /* List header used to link this item to the &quot;struct file&quot; items list */
     struct list_head fllink;
     /* epoll_ctl 传入的用户数据 */
     struct epoll_event event;
 };
+
+// 每次当一个 fd 关联到一个 epoll 实例，就会有一个 eppoll_entry 产生。
