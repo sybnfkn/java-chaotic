@@ -1,0 +1,98 @@
+@startuml
+== 启动流程 ==
+client -> DefaultMQProducer
+activate client
+note left : 启动过程\n用户调用：\nproducer = new DefaultMQProducer("InstanceTest", "pidTest"); \n producer.start();）
+
+DefaultMQProducer -> DefaultMQProducerImpl
+activate DefaultMQProducerImpl
+DefaultMQProducerImpl -> MQClientInstance:创建一个MQClientInstance实例
+MQClientInstance --> DefaultMQProducerImpl:return
+
+DefaultMQProducerImpl -> MQClientInstance:将生产者加入instance管理，方便后续网络调用，心跳检测。。。
+MQClientInstance --> DefaultMQProducerImpl:return
+
+DefaultMQProducerImpl -> MQClientInstance:启动start instance
+activate MQClientInstance
+MQClientInstance -> MQClientInstance:启动请求响应通道：mQClientAPIImpl.start()
+MQClientInstance -> MQClientInstance:启动各种定时任务：startScheduledTask()
+MQClientInstance -> MQClientInstance:拉取消息服务：pullMessageService.start()
+MQClientInstance -> MQClientInstance:rebalance服务：rebalanceService.start()
+
+MQClientInstance --> DefaultMQProducerImpl
+deactivate MQClientInstance
+
+DefaultMQProducerImpl -> Broker:向所有broker发送心跳
+
+DefaultMQProducerImpl -> DefaultMQProducer
+deactivate DefaultMQProducerImpl
+
+DefaultMQProducer -> client
+deactivate client
+
+
+
+== 发送流程 ==
+client->DefaultMQProducer:消息发送
+note left : 消息发送：producer.send(message)
+DefaultMQProducer -> DefaultMQProducerImpl:send调用
+
+activate DefaultMQProducerImpl
+DefaultMQProducerImpl -> DefaultMQProducerImpl : 消息验证是否大于4M
+group 拉取路由信息
+DefaultMQProducerImpl -> DefaultMQProducerImpl : 生产者缓存了路由信息，直接返回
+
+DefaultMQProducerImpl -> MQClientInstance:从broker拉取路由信息
+note left:tryToFindTopicPublishInfo
+
+
+
+activate MQClientInstance
+MQClientInstance -> MQClientInstance:
+note right :updateTopicRouteInfoFromNameServer
+
+MQClientInstance -> nameserver:从ns拉取topic的路由信息
+nameserver --> MQClientInstance:return
+
+MQClientInstance -> MQClientInstance:和本地路由信息比较，是否改变
+
+MQClientInstance -> MQClientInstance:如果已经改变，更新broker地址缓存列表
+MQClientInstance -> MQClientInstance:更新推送缓存producerTable
+MQClientInstance -> MQClientInstance:更新订阅缓存consumerTable
+MQClientInstance --> DefaultMQProducerImpl:返回路由信息
+deactivate MQClientInstance
+DefaultMQProducerImpl -> Broker:都未找到，查找默认队列（TBW102）
+Broker --> DefaultMQProducerImpl:return
+note left:没有找到目标topic路由信息，因为用户未创建。\n 此时发送到默认队列，broker会自动根据发送的topic在ns上创建
+end
+
+group 选择合适的消息队列
+DefaultMQProducerImpl -> MQFaultStrategy:
+activate MQFaultStrategy
+MQFaultStrategy -> MQFaultStrategy : 未选择"故障转移"策略-->递增寻找下一个索引位置的queue返回
+
+MQFaultStrategy -> MQFaultStrategy : 选择"故障转移"策略-->根据策略选择一个合适的queue返回
+note left:根据本次消息发送延迟时间或者默认值 currentLatency，计算broker故障规避时长\n 规避期间broker不可用\n如果发送抛出异常说明broker可能不可用，currentLatency=3000。\n 如果发送正常currentLatency=本次发送耗时，以此来作为broker规避时长的判断
+MQFaultStrategy --> DefaultMQProducerImpl
+
+deactivate MQFaultStrategy
+
+end
+
+
+
+
+deactivate DefaultMQProducerImpl
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml

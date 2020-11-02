@@ -1,4 +1,4 @@
-package com.zhangyan.nio.model.multi;
+package com.zhangyan.nio.reactor.multithread;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;

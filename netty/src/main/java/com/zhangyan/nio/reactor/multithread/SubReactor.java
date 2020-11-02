@@ -1,8 +1,8 @@
-package com.zhangyan.nio.model.multi;
+package com.zhangyan.nio.reactor.multithread;
 
 
-import com.zhangyan.nio.model.multi.eventhandle.EventHandle;
-import com.zhangyan.nio.model.multi.eventhandle.IOEventHandleImpl;
+import com.zhangyan.nio.reactor.multithread.eventhandle.EventHandle;
+import com.zhangyan.nio.reactor.multithread.eventhandle.IOEventHandleImpl;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;

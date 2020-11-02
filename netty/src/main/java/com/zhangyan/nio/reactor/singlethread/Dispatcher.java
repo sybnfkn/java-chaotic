@@ -1,7 +1,7 @@
-package com.zhangyan.nio.model.singlethread;
+package com.zhangyan.nio.reactor.singlethread;
 
 
-import com.zhangyan.nio.model.singlethread.eventhandles.EventHandler;
+import com.zhangyan.nio.reactor.singlethread.eventhandles.EventHandler;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;

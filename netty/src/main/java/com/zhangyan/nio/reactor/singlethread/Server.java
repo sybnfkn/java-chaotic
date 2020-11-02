@@ -1,7 +1,7 @@
-package com.zhangyan.nio.model.singlethread;
+package com.zhangyan.nio.reactor.singlethread;
 
 
-import com.zhangyan.nio.model.singlethread.eventhandles.AcceptEventHandlerImpl;
+import com.zhangyan.nio.reactor.singlethread.eventhandles.AcceptEventHandlerImpl;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;

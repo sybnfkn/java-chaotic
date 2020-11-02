@@ -1,8 +1,8 @@
-package com.zhangyan.nio.model.multi.eventhandle;
+package com.zhangyan.nio.reactor.multithread.eventhandle;
 
 
 
-import com.zhangyan.nio.model.multi.SubReactor;
+import com.zhangyan.nio.reactor.multithread.SubReactor;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
