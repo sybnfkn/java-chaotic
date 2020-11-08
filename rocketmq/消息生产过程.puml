@@ -79,6 +79,11 @@ deactivate MQFaultStrategy
 
 end
 
+group 消息发送
+DefaultMQProducerImpl -> DefaultMQProducerImpl:sendKernelImpl\n 1.根据queue 找到broker地址 \n 2.拼装消息头消息体
+DefaultMQProducerImpl -> DefaultMQProducerImpl:调用 底层netty进行发送
+end
+
 
 
 

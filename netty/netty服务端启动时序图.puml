@@ -1,0 +1,38 @@
+@startuml
+应用代码 -> 应用代码:创建bossGroup，workerGroup
+应用代码 -> 应用代码:创建ServerBootstrap，\n 设置group，channel，option,childHandle
+应用代码 -> AbstractBootstrap:doBind(address)
+
+
+group initAndRegister方法
+AbstractBootstrap -> AbstractBootstrap:反射创建NioServerSocketChannel对象
+AbstractBootstrap -> AbstractBootstrap:初始化NioServerSocketChannel，添加channelhandler
+AbstractBootstrap -> AbstractBootstrap:将channel注册到bossGroup
+end
+
+group doBind0方法
+AbstractBootstrap -> AbstractChannel:channel.bind(address)
+AbstractChannel -> DefaultChannelPipeline:pipeline.bind(address)
+DefaultChannelPipeline -> TailHandle:tail.bind(address)
+TailHandle -> HeadHandle:pipeline时间从尾部传播到头部
+HeadHandle -> HeadHandle:调用内部的unsafe.bind(address),\nunsafe是Headhandle内部属性
+
+HeadHandle -> AbstractChannel:AbstractChannel.AbstractUnsafe.bind()\nunsafe是被AbstractChannel构造出来，赋值到unsafe中
+AbstractChannel -> NioServerSocketChannel:doBind方法
+activate NioServerSocketChannel
+NioServerSocketChannel -> NioServerSocketChannel:调用jdk的bind方法
+NioServerSocketChannel --> AbstractChannel
+deactivate NioServerSocketChannel
+
+AbstractChannel -> DefaultChannelPipeline:pipeline.fireChannelActive()
+DefaultChannelPipeline -> HeadHandle:ctx.fireChannelActive(); 通道就绪事件从头部传到尾部\n readIfIsAutoRead(); 重新为channel设置read事件，从尾部传到头部
+HeadHandle --> DefaultChannelPipeline:
+DefaultChannelPipeline --> AbstractChannel
+
+AbstractChannel --> AbstractBootstrap
+end
+
+AbstractBootstrap --> 应用代码
+
+
+@enduml
