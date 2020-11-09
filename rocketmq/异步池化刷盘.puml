@@ -1,0 +1,40 @@
+@startuml
+DefaultMessageStore -> CommitLog:commitLog.putMessage(msg)
+CommitLog -> CommitLog:异步池化刷盘
+CommitLog --> CommitRealTimeService : 唤醒commit线程
+loop commit线程无限循环
+CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:获取线程间隔时间，默认 200ms。
+CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:一次提交任务至少包含页数,默认4页
+CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:两次真实提交最大间隔，默认 200ms
+CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:如果本次提交时间-上次提交时间>200ms \n commitDataLeastPages = 0 \n 意味只要有脏页就提交\n 否则一次只提交4页
+
+CommitLog.CommitRealTimeService -> MappedFileQueue:CommitLog.this.mappedFileQueue.commit(commitDataLeastPages)
+activate MappedFileQueue
+MappedFileQueue -> MappedFileQueue:根据committedWhere找到mappedFile
+MappedFileQueue -> MappedFile:mappedFile.commit(commitLeastPages)
+MappedFile -> MappedFile:是否可以提交->如果commitLeastPages=0，只要存在脏页就提交 \n commitLeastPages > 0 : 是否(write-flush)/OS_PAGE_SIZE >= commitLeastPages
+MappedFile -> MappedFile:将writeBuffer写入FileChannel对应的pageCache 中 \n byteBuffer = writeBuffer.slice()\n fileChannel.write(byteBuffer);
+MappedFile --> MappedFileQueue
+MappedFileQueue -> MappedFileQueue:根据提交返回offset，重新设置committedWhere
+MappedFileQueue --> CommitLog.CommitRealTimeService
+deactivate
+
+CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:commit结果true，唤醒FlushRealTimeService线程
+
+end
+
+CommitLog.CommitRealTimeService --> CommitLog.FlushRealTimeService:flushCommitLogService.wakeup()
+
+loop 刷盘线程无限循环
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:获取线程间隔时间
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:一次刷写任务至少包含页数默认4页
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:两次真实刷写任务最大间隔， 默认 10s
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:如果距上次提交间隔超过 flushPhysicQueueThoroughinterval，\n 则本次刷盘任务 将忽略flushPhysicQueueLeastPages，\n 有多少刷多少多少\n 否则一次只提交4页
+CommitLog.FlushRealTimeService -> MappedFileQueue:CommitLog.this.mappedFileQueue.flush(flushPhysicQueueLeastPages)
+MappedFileQueue -> MappedFileQueue:根据flushedWhere寻找mappedFile
+MappedFileQueue -> MappedFile:mappedFile.flush(flushLeastPages);
+MappedFile -> MappedFile:是否可以刷盘：flushLeastPages=0 有脏页就刷盘 \n flushLeastPages>0 ,(write-flush)/OS_PAGE_SIZE >flushLeastPages 才会刷盘
+MappedFile -> MappedFile:异步池化刷盘：this.fileChannel.force(false);
+MappedFileQueue -> MappedFileQueue:根据返回offset更新flushedWhere
+end
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+DefaultMessageStore -> CommitLog:commitLog.putMessage(msg)
+CommitLog -> CommitLog:同步消息刷盘
+CommitLog -> GroupCommitService : 封装GroupCommitRequest\n 提交请求 GroupCommitService.putRequest(request);\n并发安全存入requestsWrite
+GroupCommitService --> CommitLog
+CommitLog -> CommitLog:flushOkFuture.get(syncFlushTimeOut)
+group 异步线程-无限循环
+GroupCommitService -> GroupCommitService:requestsRead/requestsWrite互相拷贝，保证多线程下高性能
+loop 刷盘两次
+GroupCommitService -> MappedFileQueue:CommitLog.this.mappedFileQueue.flush(0);
+MappedFileQueue -> MappedFile:根据flushedWhere找到已刷盘file
+activate MappedFile
+MappedFile -> MappedFile:this.mappedByteBuffer.force();
+MappedFile -> MappedFile:根据刷新的offset，重新设置flushedWhere
+MappedFile --> MappedFileQueue
+deactivate
+MappedFileQueue --> GroupCommitService
+GroupCommitService -> GroupCommitService:如果"已刷盘指针大于等于提交的刷盘点，\n表示本次请求刷盘成功"
+end
+GroupCommitService -> CommitLog:唤醒同步等待的线程
+end
+@enduml
