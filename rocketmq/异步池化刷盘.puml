@@ -1,7 +1,6 @@
 @startuml
-DefaultMessageStore -> CommitLog:commitLog.putMessage(msg)
 CommitLog -> CommitLog:异步池化刷盘
-CommitLog --> CommitRealTimeService : 唤醒commit线程
+CommitLog --> CommitLog.CommitRealTimeService : 唤醒commit线程
 loop commit线程无限循环
 CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:获取线程间隔时间，默认 200ms。
 CommitLog.CommitRealTimeService -> CommitLog.CommitRealTimeService:一次提交任务至少包含页数,默认4页
@@ -34,7 +33,9 @@ CommitLog.FlushRealTimeService -> MappedFileQueue:CommitLog.this.mappedFileQueue
 MappedFileQueue -> MappedFileQueue:根据flushedWhere寻找mappedFile
 MappedFileQueue -> MappedFile:mappedFile.flush(flushLeastPages);
 MappedFile -> MappedFile:是否可以刷盘：flushLeastPages=0 有脏页就刷盘 \n flushLeastPages>0 ,(write-flush)/OS_PAGE_SIZE >flushLeastPages 才会刷盘
-MappedFile -> MappedFile:异步池化刷盘：this.fileChannel.force(false);
+MappedFile -> MappedFile:#red 异步池化刷盘：this.fileChannel.force(false); \n 补充：异步非池化：this.mappedByteBuffer.force()
+MappedFile --> MappedFileQueue
 MappedFileQueue -> MappedFileQueue:根据返回offset更新flushedWhere
 end
+MappedFileQueue --> CommitLog.FlushRealTimeService
 @enduml
