@@ -1,10 +1,19 @@
 @startuml
-(*)  --> "check input"
-If "input is verbose" then
---> [Yes] "turn on verbosity"
---> "run command"
-else
---> "run command"
-Endif
--->(*)
+CommitLog -> CommitLog:异步非池化刷盘
+CommitLog --> CommitLog.FlushRealTimeService : 唤醒刷盘线程 flushCommitLogService.wakeup();
+loop 刷盘线程无限循环
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:获取线程间隔时间
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:一次刷写任务至少包含页数默认4页
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:两次真实刷写任务最大间隔， 默认 10s
+CommitLog.FlushRealTimeService -> CommitLog.FlushRealTimeService:如果距上次提交间隔超过 flushPhysicQueueThoroughinterval，\n 则本次刷盘任务 将忽略flushPhysicQueueLeastPages，\n 有多少刷多少多少\n 否则一次只提交4页
+CommitLog.FlushRealTimeService -> MappedFileQueue:CommitLog.this.mappedFileQueue.flush(flushPhysicQueueLeastPages)
+MappedFileQueue -> MappedFileQueue:根据flushedWhere寻找mappedFile
+MappedFileQueue -> MappedFile:mappedFile.flush(flushLeastPages);
+MappedFile -> MappedFile:是否可以刷盘：flushLeastPages=0 有脏页就刷盘 \n flushLeastPages>0 ,(write-flush)/OS_PAGE_SIZE >flushLeastPages 才会刷盘
+MappedFile -> MappedFile:异步非池化：this.mappedByteBuffer.force() \n 补充：异步池化刷盘：this.fileChannel.force(false);
+MappedFile --> MappedFileQueue
+MappedFileQueue -> MappedFileQueue:根据返回offset更新flushedWhere
+end
+MappedFileQueue --> CommitLog.FlushRealTimeService
+
 @enduml
