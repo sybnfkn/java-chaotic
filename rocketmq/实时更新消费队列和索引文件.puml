@@ -1,3 +1,18 @@
 @startuml
+DefaultMessageStore -> DefaultMessageStore.ReputMessageService:reputMessageService.start();
+DefaultMessageStore.ReputMessageService -> DefaultMessageStore.ReputMessageService:确定reputFromOffset
+note left :如果允许重复转发， 为 CommitLog的 提交指针; \n 如果不允许重复转发， 为 Commitlog 的内存中最大偏移量
+DefaultMessageStore.ReputMessageService -> CommimtLog:根据reputFromOffset读取commitLog中数据
+CommimtLog --> DefaultMessageStore.ReputMessageService
+
+DefaultMessageStore.ReputMessageService -> DefaultMessageStore.ReputMessageService:检查消息，并返回DispatchRequest
+note left:topic \n queueid \n commitLogOffset \n 索引keys \n propertiesMap
+
+DefaultMessageStore.ReputMessageService -> DefaultMessageStore.CommitLogDispatcherBuildConsumeQueue:构建consumeQueue file
+
+DefaultMessageStore.ReputMessageService -> DefaultMessageStore.CommitLogDispatcherBuildIndex:构建indexfile
+
+
+DefaultMessageStore.ReputMessageService -> NotifyMessageArrivingListener:唤醒消费者长轮训的请求
 
 @enduml
