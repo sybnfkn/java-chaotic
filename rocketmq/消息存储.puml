@@ -1,0 +1,36 @@
+@startuml
+DefaultMessageStore -> DefaultMessageStore:1.检查当前broker是否停止工作 \n 2.broker是否是slave角色 \n 3.当前broker是否支持写入 \n 4.pagecache is busy?
+DefaultMessageStore -> DefaultMessageStore:消息格式检查
+DefaultMessageStore -> CommitLog: 存入消息this.commitLog.putMessage(msg)
+group 延时消息
+CommitLog -> CommitLog:设置延时消息的topic和queueId
+CommitLog -> CommitLog:putProperty重新设置真正的topic和queueId
+note left:延时消息处理 \n msg.getDelayTimeLevel() > 0
+end
+
+CommitLog -> CommitLog:获取LastMappedFile
+CommitLog -> MappedFile:mappedFile.appendMessage(msg, this.appendMessageCallback)
+
+MappedFile -> MappedFile:获取当前写指针：currentPos=wrotePosition.get()
+
+MappedFile -> MappedFile:根据是否使用TransientStorePool \n 获取byteBuf = writeBuffer != null \n? writeBuffer.slice() \n: this.mappedByteBuffer.slice();
+
+MappedFile -> MappedFile:byteBuffer.position(currentPos)  设置position
+
+MappedFile -> CommitLog.DefaultAppendMessageCallback:cb.doAppend(fileFromOffset, byteBuffer, fileSize - currentPos, messageExt)
+CommitLog.DefaultAppendMessageCallback -> CommitLog.DefaultAppendMessageCallback:创建消息id
+CommitLog.DefaultAppendMessageCallback -> CommitLog.DefaultAppendMessageCallback:如果mappedFile剩余空间不足以放下完整消息，就放这点消息
+CommitLog.DefaultAppendMessageCallback -> CommitLog.DefaultAppendMessageCallback:将消息属性放入临时空间->msgStoreItemMemory
+CommitLog.DefaultAppendMessageCallback -> CommitLog.DefaultAppendMessageCallback:核心：将消息存入->byteBuffer.put(msgStoreItemMemory, 0, msgLen);
+CommitLog.DefaultAppendMessageCallback -> MappedFile:返回AppendMessageResult，包含写入消息字节数，写入是否成功
+MappedFile -> MappedFile:写指针增加：wrotePosition.addAndGet(result.getWroteBytes())
+MappedFile --> CommitLog:
+
+CommitLog -> CommitLog:刷盘
+CommitLog -> CommitLog:主从同步
+
+CommitLog --> DefaultMessageStore
+
+
+
+@enduml

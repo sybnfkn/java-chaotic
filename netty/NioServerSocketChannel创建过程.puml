@@ -1,0 +1,14 @@
+@startuml
+NioServerSocketChannel -> AbstractNioMessageChannel:super(null, channel, SelectionKey.OP_ACCEPT);
+AbstractNioMessageChannel -> AbstractNioChannel:super(parent, ch, readInterestOp);
+AbstractNioChannel -> AbstractChannel:super(parent);
+note right:this.parent = parent; \n id = newId(); \n unsafe = newUnsafe(); \n pipeline = newChannelPipeline();
+AbstractChannel --> AbstractNioChannel
+AbstractNioChannel -> AbstractNioChannel : 设置非阻塞模式configureBlocking(false)
+AbstractNioChannel -> AbstractNioChannel : 设置channel感兴趣OP_ACCEPT
+
+AbstractNioChannel --> AbstractNioMessageChannel
+
+NioServerSocketChannel -> NioServerSocketChannel:config = new NioServerSocketChannelConfig(this, javaChannel().socket());\n 设置channel为自适应 this(channel, new AdaptiveRecvByteBufAllocator());
+
+@enduml
