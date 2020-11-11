@@ -17,11 +17,9 @@ CommitLogDispatcherBuildConsumeQueue --> ReputMessageService
 
 ReputMessageService -> CommitLogDispatcherBuildIndex:2.构建index file,传入DispatchRequest
 
-CommitLogDispatcherBuildIndex-> IndexService:buildIndex(DispatchRequest req)
-IndexService -> IndexFile:putKey(indexKey,commitLogOffset,storeTime)
+CommitLogDispatcherBuildIndex-> IndexFile:putKey(indexKey,commitLogOffset,storeTime)
 IndexFile -> IndexFile:将hash(indexKey),phyOffset,timeDiff,preIndexNum 存入indexfile
-IndexFile --> IndexService
-IndexService-->CommitLogDispatcherBuildIndex
+IndexFile -->CommitLogDispatcherBuildIndex
 CommitLogDispatcherBuildIndex --> ReputMessageService
 
 ReputMessageService -> PullRequestHoldService:3.唤醒消费者长轮训的请求
