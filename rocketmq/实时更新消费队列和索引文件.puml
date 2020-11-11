@@ -1,18 +1,36 @@
 @startuml
-DefaultMessageStore -> DefaultMessageStore.ReputMessageService:reputMessageService.start();
-DefaultMessageStore.ReputMessageService -> DefaultMessageStore.ReputMessageService:确定reputFromOffset
+DefaultMessageStore -> ReputMessageService:reputMessageService.start();
+ReputMessageService -> ReputMessageService:确定reputFromOffset
 note left :如果允许重复转发， 为 CommitLog的 提交指针; \n 如果不允许重复转发， 为 Commitlog 的内存中最大偏移量
-DefaultMessageStore.ReputMessageService -> CommimtLog:根据reputFromOffset读取commitLog中数据
-CommimtLog --> DefaultMessageStore.ReputMessageService
+ReputMessageService -> CommimtLog:根据reputFromOffset读取commitLog中数据
+CommimtLog --> ReputMessageService
 
-DefaultMessageStore.ReputMessageService -> DefaultMessageStore.ReputMessageService:检查消息，并返回DispatchRequest
+ReputMessageService -> ReputMessageService:检查消息，并返回DispatchRequest
 note left:topic \n queueid \n commitLogOffset \n 索引keys \n propertiesMap
 
-DefaultMessageStore.ReputMessageService -> DefaultMessageStore.CommitLogDispatcherBuildConsumeQueue:构建consumeQueue file
+ReputMessageService -> CommitLogDispatcherBuildConsumeQueue:1.构建consumeQueue file,传入DispatchRequest
+CommitLogDispatcherBuildConsumeQueue -> CommitLogDispatcherBuildConsumeQueue:根据topic和queueId找到consumeQueue
+CommitLogDispatcherBuildConsumeQueue -> ConsumeQueue:putMessagePositionInfoWrapper
+ConsumeQueue -> ConsumeQueue:根据commitLogOffset 8字节，size 4字节，tagCode 8字节 存入ConsumeQueue中
+ConsumeQueue --> CommitLogDispatcherBuildConsumeQueue
+CommitLogDispatcherBuildConsumeQueue --> ReputMessageService
 
-DefaultMessageStore.ReputMessageService -> DefaultMessageStore.CommitLogDispatcherBuildIndex:构建indexfile
+ReputMessageService -> CommitLogDispatcherBuildIndex:2.构建index file,传入DispatchRequest
 
+CommitLogDispatcherBuildIndex-> IndexService:buildIndex(DispatchRequest req)
+IndexService -> IndexFile:putKey(indexKey,commitLogOffset,storeTime)
+IndexFile -> IndexFile:将hash(indexKey),phyOffset,timeDiff,preIndexNum 存入indexfile
+IndexFile --> IndexService
+IndexService-->CommitLogDispatcherBuildIndex
+CommitLogDispatcherBuildIndex --> ReputMessageService
 
-DefaultMessageStore.ReputMessageService -> NotifyMessageArrivingListener:唤醒消费者长轮训的请求
+ReputMessageService -> PullRequestHoldService:3.唤醒消费者长轮训的请求
+PullRequestHoldService -> PullRequestHoldService:topic+queueId 构建key，从pullRequestTable.get(key)取出长轮训等待请求
+PullRequestHoldService -> PullRequestHoldService:maxOffset > pullFromThisOffset,当前最大偏移量>消费方想要拉取的偏移量
+PullRequestHoldService -> PullRequestHoldService:根据properties进行消息过滤，如果匹配，重新拉取消息
+PullRequestHoldService -> PullRequestHoldService:调用PullMessageProcessor，重新拉取消息，这次就能拉下消息了
+PullRequestHoldService --> ReputMessageService
+
+ReputMessageService --> DefaultMessageStore
 
 @enduml
