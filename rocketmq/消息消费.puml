@@ -14,7 +14,15 @@ DefaultMQPushConsumer.RebalanceImpl-> PullMessageService:PullRequest加入PullMe
 DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:发心跳给broker通知broker自己分配的队列信息
 
 PullMessageService -> PullMessageService:pullRequestQueue.take 取出PullRequest进行消费
-PullMessageService ->
+PullMessageService -> PullMessageService:根据PullRequest中的group调用对应的DefaultMQPushConsumer.pullMessage
+
+PullMessageService -> DefaultMQPushConsumerImpl:获取PullRequest的ProcessQueue，判断是否drop
+
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:1.获取ProcessQueue总消息数cachedMessageCount \n 2.获取processQueue最大偏移量和最小偏移量间距cachedMessageSizeInMiB
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:如果cachedMessageCount>1000 进行流量控制，延迟处理PullRequest
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:如果cachedMessageSizeInMiB>100 进行流量控制，延迟处理PullRequest
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:如果拉取该主题订阅信息为空，延迟处理PullRequest
+
 
 
 @enduml
