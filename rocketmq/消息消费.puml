@@ -3,10 +3,10 @@ DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:客户端start启动
 DefaultMQPushConsumerImpl -> MQClientInstance:rebalanceImmediately立刻rebalance
 MQClientInstance -> MQClientInstance:遍历consumerTable，调用每个group的DefaultMQPushConsumer.RebalanceImpl.dobalance
 MQClientInstance -> DefaultMQPushConsumer.RebalanceImpl: 对DefaultMQPushConsumer 下的每个topic进行rebalance
-DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:
-DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:
-DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:
-DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:
-DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:
+DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:从主题订阅缓存表中取出主题的队列信息mqSet \n topicSubscribeInfoTable.get(topic)
+DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:从broker获取所有消费者cidAll
+DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:对两者排序，以"平均分配"策略，给本机分配队列allocateResult
+DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:对新分配队列集合和老分配队列集合进行对比
+DefaultMQPushConsumer.RebalanceImpl-> DefaultMQPushConsumer.RebalanceImpl:对于不在
 
 @enduml
