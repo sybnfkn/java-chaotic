@@ -22,6 +22,10 @@ DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:1.获取ProcessQueue总�
 DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:如果cachedMessageCount>1000 进行流量控制，延迟处理PullRequest
 DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:如果cachedMessageSizeInMiB>100 进行流量控制，延迟处理PullRequest
 DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:如果拉取该主题订阅信息为空，延迟处理PullRequest
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:设置sysFlag，标记是否支持长轮。。。
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:设置PullCallback，从 Broker 拉取到消息后的回调方法
+DefaultMQPushConsumerImpl -> broker:pullAPIWrapper.pullKernelImpl 从broker拉取消息
+broker-> DefaultMQPushConsumerImpl:返回拉取消息，执行PullCallback
 
 
 
