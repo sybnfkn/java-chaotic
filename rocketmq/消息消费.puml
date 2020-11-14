@@ -27,6 +27,12 @@ DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:设置PullCallback，从 
 DefaultMQPushConsumerImpl -> broker:pullAPIWrapper.pullKernelImpl 从broker拉取消息
 broker-> DefaultMQPushConsumerImpl:返回拉取消息，执行PullCallback
 
+activate DefaultMQPushConsumerImpl
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:FOUND-从PullResult中获取nextOffset，记录到Pullrequest，方便下次拉取
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:FOUND-将拉取的消息MsgFoundList，放入ProcessQueue
+deactivate
+
+
 
 
 @enduml
