@@ -35,7 +35,15 @@ DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:立即将PullRequest放�
 DefaultMQPushConsumerImpl --> ConsumeRequest
 deactivate
 
-
+ConsumeRequest -> ConsumeRequest:判断processQueue是否drop
+ConsumeRequest -> ConsumeRequest:获取messageListener，业务处理函数
+ConsumeRequest -> ConsumeRequest:恢复重试消息主题名
+ConsumeRequest -> ConsumeRequest:***执行业务回调函数***
+ConsumeRequest -> ConsumeRequest:根据业务函数返回结果，处理返回结果
+ConsumeRequest -> ConsumeRequest:消费失败的消息，需要ACK，通知broker延迟发送
+ConsumeRequest -> ConsumeRequest:如果ACK失败，将这批消息封装为 ConsumeRequest放在本地，然后延迟 5s 后 重新消费
+ConsumeRequest -> ConsumeRequest:将已经消费的消息从ProcessQueue中移除后，然后再获取最小偏移量offset
+ConsumeRequest -> ConsumeRequest:记录消费之后的偏移量offset放入本地，然后等待定时任务再次将offset同步到broker中
 
 
 
