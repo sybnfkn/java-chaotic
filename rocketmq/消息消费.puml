@@ -30,7 +30,12 @@ broker-> DefaultMQPushConsumerImpl:返回拉取消息，执行PullCallback
 activate DefaultMQPushConsumerImpl
 DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:FOUND-从PullResult中获取nextOffset，记录到Pullrequest，方便下次拉取
 DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:FOUND-将拉取的消息MsgFoundList，放入ProcessQueue
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:封装ConsumeRequest，放入consumeMessageService异步消息处理
+DefaultMQPushConsumerImpl -> DefaultMQPushConsumerImpl:立即将PullRequest放回PullrequestQueue，保证后面执行消息获取
+DefaultMQPushConsumerImpl --> ConsumeRequest
 deactivate
+
+
 
 
 
