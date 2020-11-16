@@ -1,0 +1,27 @@
+@startuml
+NioEventLoop -> NioEventLoop:run方法阻塞获取就绪的fd
+NioEventLoop -> NioEventLoop:迭代处理selectedKeys，\n channel是绑定在selectionKey的附件上，k.attachment()
+NioEventLoop -> NioByteChannel:获取 NioByteUnsafe=channel.unsafe()
+NioByteChannel --> NioEventLoop
+NioEventLoop -> NioByteUnsafe:unsafe.read()
+loop  最多只能读取16次，如果buffer没有放满，就退出了
+NioByteUnsafe -> NioByteUnsafe: config.getAllocator() channel配置是池化还是非池化分配Buffer
+NioByteUnsafe -> NioByteUnsafe: 是否是自适应分配buffer （这些都在channel初始化时配置好了）
+NioByteUnsafe -> NioByteUnsafe: 创建一个buffer，然后接受数据.注意：**这个buffer后续处理一定要释放**
+NioByteUnsafe -> NioByteUnsafe: 根据接受的数据，预测下一次buffer的创建大小
+
+NioByteUnsafe -> NioByteUnsafe: lastBytesRead() <= 0 : 等于0说明本次未读到数据直接推出循环 \n 小于0 说明返回EOF此时需要中断
+
+NioByteUnsafe -> PipeLine : lastBytesRead() > 0读取到数据，pipeline.fireChannelRead(byteBuf);将数据向后传播
+PipeLine -> HeadContext:直接从Head向tail传播
+HeadContext --> PipeLine:调用结束
+PipeLine --> NioByteUnsafe:调用结束
+end
+NioByteUnsafe -> NioByteUnsafe: 读取一波结束，pipeline.fireChannelReadComplete()
+NioByteUnsafe -> PipeLine: 如果收到EOF，closeOnRead(pipeline) 触发关闭channel动作，因为可能对方已经关闭 \n netty框架会关闭channel \n 然后fireChannelInactive通知业务逻辑清理自己资源
+PipeLine --> NioByteUnsafe
+
+
+
+
+@enduml
