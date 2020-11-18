@@ -1,0 +1,46 @@
+@startuml
+group write
+BusinessHandler -> BusinessHandler:ctx.writeAndFlush()
+
+note left:HandlerContext中会先调用write，\n 后调用flush
+BusinessHandler -> EncoderHandler:write() 进行编码
+EncoderHandler -> HeadContext:。。。
+HeadContext -> NioByteUnsafe:unsafe.write(msg, promise)
+NioByteUnsafe -> NioByteUnsafe:堆buf转堆外buf, 堆外buf直接返回. \n 这里的数据应该从"编解码器"来的
+NioByteUnsafe -> NioByteUnsafe:估算要写入buffer大小
+NioByteUnsafe -> ChannelOutboundBuffer:addMessage(msg, size)
+ChannelOutboundBuffer -> ChannelOutboundBuffer:创建一个待写消息节点Entry
+ChannelOutboundBuffer -> ChannelOutboundBuffer:将消息挂到链表上
+ChannelOutboundBuffer -> ChannelOutboundBuffer:将数据大小进行累加计算，\n 判断是否触发高水位WriteBufferHighWater，\n 是否设置channel不可写 \n 生产方根据此表示决定是否继续写
+ChannelOutboundBuffer --> NioByteUnsafe:
+NioByteUnsafe --> HeadContext
+HeadContext --> EncoderHandler
+EncoderHandler --> BusinessHandler
+end
+
+group flush
+
+NioEventLoop -> NioByteUnsafe: **socket写buffer就绪，直接就调用unsafe的flush方法，刷新内存数据到socket 写缓存**
+
+BusinessHandler -> HeadContext:
+HeadContext -> NioByteUnsafe:unsafe.flush()
+NioByteUnsafe -> NioByteUnsafe:addFlush 拿到unflushedEntry指针, \n 然后将flushedEntry指向unflushedEntry指向节点
+NioByteUnsafe -> NioByteUnsafe:获取自选次数写WriteSpinCount，默认16
+loop 循环16
+NioByteUnsafe -> NioByteUnsafe:in.current() 获取将要刷新的entry
+NioByteUnsafe -> NioByteUnsafe:jdk socket 写入entry上可写的数据，返回amount写入字节数
+NioByteUnsafe -> NioByteUnsafe:entry.progress + amount 记录当前写入的节点数
+NioByteUnsafe -> NioByteUnsafe:如果entry完整写完了，就回调Promise，通知发送线程
+NioByteUnsafe -> NioByteUnsafe:如果entry已经写完了，没数据可读，直接remove掉entry，flushedEntry指向下一个entry节点
+NioByteUnsafe -> NioByteUnsafe:1.释放直接内存ReferenceCountUtil.safeRelease(msg) \n 2.写完entry所有数据 判断是否触发低水位 WriteBufferLowWater，设置channel可写
+NioByteUnsafe -> NioByteUnsafe:返回1，标示写了一次，writeSpinCount = writeSpinCount - 1
+end
+NioByteUnsafe -> NioByteUnsafe:如果16次都没写完，为channel再次注册OP_WRITE事件
+NioByteUnsafe --> HeadContext
+HeadContext --> BusinessHandler
+
+end
+
+
+
+@enduml
