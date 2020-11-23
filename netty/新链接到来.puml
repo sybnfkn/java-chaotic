@@ -1,0 +1,20 @@
+@startuml
+NioEventLoop -> NioEventLoop:新连接请求来了
+NioEventLoop -> NioServerSocketChannel:channel.unsafe()
+NioServerSocketChannel --> NioEventLoop
+
+NioEventLoop -> NioMessageUnsafe:unsafe.read()
+
+NioMessageUnsafe -> NioServerSocketChannel:doReadMessages(readBuf) 获取新的连接放入readBuf
+NioServerSocketChannel -> NioServerSocketChannel:serverSocketChannel.accept() 获取nio channel
+NioServerSocketChannel -> NioServerSocketChannel:new NioSocketChannel(this, ch) 根据niochannel创建netty的channel对象 \n 会创建unsafe，pipeline等属性
+NioServerSocketChannel -> NioServerSocketChannel:新的netty nio channel放入readBuf
+NioServerSocketChannel --> NioMessageUnsafe:
+loop start : 遍历readBuf中的channel
+NioMessageUnsafe -> DefaultChannelPipeline:pipeline.fireChannelRead(readBuf.get(i))
+DefaultChannelPipeline -> ServerBootstrapAcceptor: 从head到此handler处理器
+ServerBootstrapAcceptor -> ServerBootstrapAcceptor:为新的 netty channel加入 用户自定义
+
+end
+
+@enduml
