@@ -13,7 +13,12 @@ NioServerSocketChannel --> NioMessageUnsafe:
 loop start : 遍历readBuf中的channel
 NioMessageUnsafe -> DefaultChannelPipeline:pipeline.fireChannelRead(readBuf.get(i))
 DefaultChannelPipeline -> ServerBootstrapAcceptor: 从head到此handler处理器
-ServerBootstrapAcceptor -> ServerBootstrapAcceptor:为新的 netty channel加入 用户自定义
+ServerBootstrapAcceptor -> ServerBootstrapAcceptor:1.为新的 netty channel加入 用户自定义handler \n（里面有我们自定义的handler和编解码handler）\n 2.设置option \n 3.设置attri
+ServerBootstrapAcceptor -> MultithreadEventLoopGroup:将 新的netty niochannel 进行注册workerGroup上
+MultithreadEventLoopGroup -> MultithreadEventLoopGroup:"轮训策略"选出一个EventLoop进行注册
+MultithreadEventLoopGroup -> SingleThreadEventLoop:进行register （channel().unsafe().register(this, promise);）
+
+
 
 end
 
