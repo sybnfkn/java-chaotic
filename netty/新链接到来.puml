@@ -15,11 +15,19 @@ NioMessageUnsafe -> DefaultChannelPipeline:pipeline.fireChannelRead(readBuf.get(
 DefaultChannelPipeline -> ServerBootstrapAcceptor: 从head到此handler处理器
 ServerBootstrapAcceptor -> ServerBootstrapAcceptor:1.为新的 netty channel加入 用户自定义handler \n（里面有我们自定义的handler和编解码handler）\n 2.设置option \n 3.设置attri
 ServerBootstrapAcceptor -> MultithreadEventLoopGroup:将 新的netty niochannel 进行注册workerGroup上
-MultithreadEventLoopGroup -> MultithreadEventLoopGroup:"轮训策略"选出一个EventLoop进行注册
-MultithreadEventLoopGroup -> SingleThreadEventLoop:进行register （channel().unsafe().register(this, promise);）
+MultithreadEventLoopGroup -> SingleThreadEventLoop:"轮训策略"选出一个EventLoop进行注册
+SingleThreadEventLoop -> NioByteUnsafe: 进行register （channel().unsafe().register(this/*eventloop*/, promise);）
+NioByteUnsafe -> NioByteUnsafe: ***将传入SingleThreadEventLoop作为属性设置到channel中***
+NioByteUnsafe -> NioByteUnsafe:javaChannel().register(eventLoop().unwrappedSelector(), 0, this); \n nio channel会注册到selector \n **this是netty的channel，作为附件注册到selector**
 
-
-
+NioByteUnsafe-> NioByteUnsafe:pipeline.fireChannelRegistered
+NioByteUnsafe -> NioByteUnsafe:pipeline.fireChannelActive() \n **会为channel注册READ事件**
+NioByteUnsafe --> SingleThreadEventLoop
+SingleThreadEventLoop --> MultithreadEventLoopGroup
+MultithreadEventLoopGroup --> ServerBootstrapAcceptor
+ServerBootstrapAcceptor --> DefaultChannelPipeline
+DefaultChannelPipeline --> NioMessageUnsafe
 end
+NioMessageUnsafe --> NioEventLoop
 
 @enduml
