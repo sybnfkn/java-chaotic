@@ -1,0 +1,14 @@
+@startuml
+前端 -> 业务系统@SDK : /authorization/getToken 获取token
+业务系统@SDK -> 业务系统@SDK : 过滤器拦截/authorization/getToken \n 获取当前用户信息 \n 1.AccessControlContext cas context中获取 \n 2.业务方自定义提供
+业务系统@SDK -> 业务系统@SDK : 拦截器 封装{appId, appKey, userCode} 到requestHeader中
+业务系统@SDK -> auth系统 : 拦截器检查
+auth系统 -> auth系统:拦截器检查:1.token存在，jwt检查appId，appKey，userCode
+auth系统 -> auth系统:拦截器检查:2.token不存在从header取出appId&userCode 检查用户合法性
+auth系统 -> auth系统:拦截器检查:2.token不存在从header取出appId&appKey 检查系统调用合法性
+
+auth系统 -> auth系统 : JWT 根据appId，appKey，userCode。生成token
+auth系统 --> 业务系统@SDK
+业务系统@SDK --> 前端
+
+@enduml
