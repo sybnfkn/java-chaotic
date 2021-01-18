@@ -1,0 +1,26 @@
+@startuml
+KafkaClientDemo -> KafkaProducer:send(record, callback)
+KafkaProducer -> KafkaProducer:消息的拦截和修改
+group 等待获取topic的Metadata
+KafkaProducer ->KafkaProducer:目标topic的Metadata存在直接返回
+loop
+KafkaProducer -> KafkaProducer:封装请求topic的路由信息
+KafkaProducer -> Sender:唤醒sender线程，获取topic路由信息
+Sender --> KafkaProducer
+KafkaProducer -> KafkaProducer:<<发送线程阻塞，等待元数据更新>>
+KafkaProducer -> KafkaProducer: 线程被唤醒，是否超时，如果超时抛出超时异常
+KafkaProducer -> KafkaProducer:未超时，是否获取到数据，\n 获取到返回，未获取到继续循环
+end
+end
+KafkaProducer -> KafkaProducer:key消息的序列化
+KafkaProducer -> KafkaProducer:value消息的序列化
+
+KafkaProducer -> KafkaProducer:根据分区负载算法计算本次消息发往的分区\n 默认是DefaultPartitioner，\n如果指定了key，使用key的hashcode对分区取模，\n如果未指定，轮训所有分区
+
+KafkaProducer -> accumulator:accumulator.append,将消息追加到缓冲区
+accumulator --> KafkaProducer
+
+KafkaProducer -> KafkaProducer:唤醒sender线程，sender将RecordAccumulator中消息发送出去
+
+
+@enduml
