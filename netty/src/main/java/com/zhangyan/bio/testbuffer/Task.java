@@ -18,20 +18,27 @@ public class Task implements Runnable {
     @Override
     public void run() {
         try {
-            inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             while (true) {
-                Thread.sleep(10000);
-                String readLine = bufferedReader.readLine();
-                System.out.println("server--->");
+                Thread.sleep(200);
+
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+                bufferedWriter.write("hello server hello servervhello " +
+                        "serverhello serverhello serverhello " +
+                        "serverhello serverhello serverhello " +
+                        "serverhello serverhello serverhello " +
+                        "serverhello serverhello serverhello serverhello " +
+                        "serverhello serverhello serverhello serverhello serverhello" +
+                        " serverhello serverhello serverhello serverhello serverhello serverhello " +
+                        "serverhello serverhello serverhello serverhello serverhello serverhello " +
+                        "serverhello serverhello serverhello serverhello serverhello" +
+                        " serverhello serverhello serverhello server" + "\n");
+                bufferedWriter.flush();
+
+//                PrintWriter printWriter = new PrintWriter(outputStream);
+//                printWriter.flush();
+//                System.out.println("111");
             }
-
-
-//            String clientStr = "hello client";
-//            PrintWriter printWriter = new PrintWriter(outputStream);
-//            printWriter.println(clientStr);
-//            printWriter.flush();
         } catch (Exception e) {
 
         } finally {

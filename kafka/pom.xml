@@ -4,18 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.example</groupId>
-  <artifactId>java-chaotic</artifactId>
-  <packaging>pom</packaging>
+  <groupId>com.zhangyan</groupId>
+  <artifactId>kafka</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <modules>
-    <module>jdk8</module>
-    <module>rocketmq</module>
-    <module>netty</module>
-      <module>kafka</module>
-  </modules>
 
-  <name>java-chaotic</name>
+  <name>kafka</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
