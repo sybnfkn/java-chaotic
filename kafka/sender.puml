@@ -1,10 +1,16 @@
 @startuml
-(*)  --> "check input"
-If "input is verbose" then
---> [Yes] "turn on verbosity"
---> "run command"
-else
---> "run command"
-Endif
--->(*)
+group 先将数据写到channel的send属性上
+Sender -> accumulator: 根据当前时间，\n 获取topic&patition的deque的哪些批次达到发送条件
+loop 遍历HashMap<TopicPartition, Deque< ProducerBatch>> batches \n 挑选批次
+accumulator -> accumulator : deque.peekFirst() 开始查看deque头部的发送批次
+accumulator -> accumulator: 获取到deque头部的ProducerBatch，\n 获取对应的leader节点,如果leader不存在 \n topic放入unknownLeaderTopics
+note right: 所有deque都遍历一次，每次只查看deque的头部批次节点 \n 如果一个node在前面遍历已经记录，后面就不选这个node了跳过\n 保证一个node每次只发一个批次消息
+accumulator -> accumulator:0.如果正在等待分配批次空间的线程，说明buffer空间不足-发送 \n 1.如果头部批次过期了-发送 \n 2.如果头部批次满了或者deque.size>1-发送 \n 3.发送者调用了close或者flush-发送
+accumulator -> accumulator:将可以发送node放入readyNodes
+accumulator -> accumulator:对于不能发送批次，记录下nextReadyCheckDelayMs-下次检测时间
+end
+
+group 将数据写到网卡
+
+end
 @enduml
