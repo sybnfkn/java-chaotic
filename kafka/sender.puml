@@ -1,7 +1,7 @@
 @startuml
 group 先将数据写到channel的send属性上
 Sender -> accumulator: 根据当前时间，\n 获取topic&patition的deque的哪些批次达到发送条件
-loop 遍历HashMap<TopicPartition, Deque< ProducerBatch>> batches \n 挑选批次
+loop 遍历HashMap<TopicPartition, Deque< ProducerBatch>> batches \n 挑选就绪批次的node节点
 accumulator -> accumulator : deque.peekFirst() 开始查看deque头部的发送批次
 accumulator -> accumulator: 获取到deque头部的ProducerBatch，\n 获取对应的leader节点,如果leader不存在 \n topic放入unknownLeaderTopics
 note right: 所有deque都遍历一次，每次只查看deque的头部批次节点 \n 如果一个node在前面遍历已经记录，后面就不选这个node了跳过\n 保证一个node每次只发一个批次消息
@@ -9,6 +9,41 @@ accumulator -> accumulator:0.如果正在等待分配批次空间的线程，说
 accumulator -> accumulator:将可以发送node放入readyNodes
 accumulator -> accumulator:对于不能发送批次，记录下nextReadyCheckDelayMs-下次检测时间
 end
+accumulator -> Sender:将readyNodes，unknownLeaderTopics，nextReadyCheckDelayMs返回
+
+Sender -> Sender:如果unknownLeaderTopics不为空，需要更新metadata信息
+loop 遍历readyNodes，检查node是否准备就绪
+Sender -> NetworkClient:查看node是否就绪
+NetworkClient -> NetworkClient:
+note right:1.Metadata并未处于正在更新或者需要更新的状态。\n2.连接状态就绪。\n3.channel就绪。\n4.inFlightRequests.canSendMore\n  4.1.queue is null or empty\n  4.2.inFlightRequest 头部节点的send发送完成，否则会出现覆盖哦\n  4.3.inFlightRequest 队列中节点数量小于inFlight阈值
+NetworkClient --> Sender:未就绪的node，从readyNodes移除掉
+end
+
+Sender -> accumulator:根据新的readyNodes，从缓存区中抽取待发送的消息批次
+loop 遍历readyNodes，为这些节点准备批次消息
+accumulator -> accumulator : drainBatchesForOneNode(cluster, node, maxSize/*一次请求最大的字节数*/, now);
+accumulator -> accumulator: 根据nodeId 获取该 nodeId 上的所有主分区
+loop 遍历所有分区, 使用size记录drain了多少字节了
+accumulator -> accumulator: drainIndex选取队列（使饥饿可能性降低，每次都不是从0开始）
+accumulator -> accumulator: 根据topic&partition从缓冲池获取deque，获取deque的头节点ProducerBatch
+accumulator -> accumulator: size + 头节点ProducerBatch大小 > maxSize 直接返回
+accumulator -> accumulator : 如果还没攒够maxSize，为该node的readyList.add(batch)，（一个node有一个list存放要发送的批次）
+
+
+end
+
+end
+
+
+
+
+
+accumulator --> Sender:返回Map<Integer/*nodeId*/, List<ProducerBatch>>结构
+
+
+
+
+
 
 group 将数据写到网卡
 
