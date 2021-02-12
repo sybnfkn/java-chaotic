@@ -15,6 +15,10 @@
       <module>kafka</module>
       <module>springboot</module>
     <module>designpattern</module>
+      <module>eureka</module>
+    <module>eureka-client</module>
+    <module>eureka-server</module>
+    <module>eureka-client</module>
   </modules>
 
   <name>java-chaotic</name>
