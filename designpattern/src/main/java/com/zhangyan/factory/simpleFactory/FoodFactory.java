@@ -17,6 +17,4 @@ public class FoodFactory {
         }
         return null;
     }
-
-
 }
