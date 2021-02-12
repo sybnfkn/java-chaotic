@@ -5,19 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.example</groupId>
-  <artifactId>java-chaotic</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>designpattern</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <modules>
-    <module>jdk8</module>
-    <module>rocketmq</module>
-    <module>netty</module>
-      <module>kafka</module>
-      <module>springboot</module>
-    <module>designpattern</module>
-  </modules>
 
-  <name>java-chaotic</name>
+  <name>designpattern</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
