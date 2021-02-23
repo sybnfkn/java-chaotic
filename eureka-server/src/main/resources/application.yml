@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   application:
-    name: ServiceA
+    name: EUREKA-SERVER
 eureka:
   instance:
     hostname: localhost

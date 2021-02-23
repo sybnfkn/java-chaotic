@@ -21,6 +21,7 @@
     <module>eureka-client</module>
       <module>ribbon-server</module>
     <module>ribbon-client</module>
+    <module>fegin-api</module>
   </modules>
 
   <name>java-chaotic</name>

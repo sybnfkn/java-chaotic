@@ -1,0 +1,25 @@
+package com.zhangyan.fegin;
+
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @Auther: Messi
+ * @Date: 2021/02/23/8:54 下午
+ * @Description:
+ */
+@FeignClient(name = "EUREKA-SERVER")
+public interface UserFeginService {
+
+    @RequestMapping(value = "/sayHello/{id}", method = RequestMethod.GET)
+    String sayHello(@PathVariable("id") Long id,
+                    @RequestParam("name") String name,
+                    @RequestParam("age") Integer age);
+
+
+}

@@ -2,7 +2,7 @@ server:
   port: 9090
 spring:
   application:
-    name: ServiceB
+    name: EUREKA-CLIENT
 eureka:
   instance:
     hostname: localhost
