@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ServiceAController {
 
-	@RequestMapping(value = "/sayHello/{name}", 
+	@RequestMapping(value = "/sayHello1/{name}",
 			method = RequestMethod.GET)
 	public String sayHello(@PathVariable("name") String name) {
 		return "{'msg': 'hello, " + name + "'}";  

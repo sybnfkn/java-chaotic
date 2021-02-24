@@ -2,6 +2,7 @@ package com.zhangyan.service;
 
 import com.zhangyan.fegin.UserFeginService;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,11 +11,19 @@ import org.springframework.stereotype.Component;
  * @Date: 2021/02/23/9:16 下午
  * @Description:
  */
-@Component
+@RestController
 public class UserService implements UserFeginService {
+
     @Override
-    public String sayHello(Long id, String name, Integer age) {
-        System.out.println();
+    @RequestMapping(value = "/sayHello/{name}",
+            method = RequestMethod.GET)
+    public String sayHello(@PathVariable("name") String name) {
+        System.out.println("..............");
+        try {
+            Thread.sleep(20 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return "hello " + name;
     }
 }

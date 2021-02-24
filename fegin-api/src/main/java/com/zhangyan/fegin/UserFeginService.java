@@ -16,10 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "EUREKA-SERVER")
 public interface UserFeginService {
 
-    @RequestMapping(value = "/sayHello/{id}", method = RequestMethod.GET)
-    String sayHello(@PathVariable("id") Long id,
-                    @RequestParam("name") String name,
-                    @RequestParam("age") Integer age);
+    @RequestMapping(value = "/sayHello/{name}", method = RequestMethod.GET)
+    String sayHello(@PathVariable("name") String name);
 
 
 }

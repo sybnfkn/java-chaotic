@@ -19,7 +19,7 @@ public class ServiceBController {
 		return new RestTemplate();
 	}
 
-	@RequestMapping(value = "/greeting/{name}", method = RequestMethod.GET)
+	@RequestMapping(value = "/sahello/{name}", method = RequestMethod.GET)
 	public String greeting(@PathVariable("name") String name) {
 		RestTemplate restTemplate = getRestTemplate();
 		return restTemplate.getForObject("http://ServiceA/sayHello/" + name, String.class);
