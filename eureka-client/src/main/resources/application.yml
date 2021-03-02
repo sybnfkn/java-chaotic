@@ -21,3 +21,7 @@ ribbon:
   OkToRetryOnAllOperations: true
   MaxAutoRetries: 1
   MaxAutoRetriesNextServer: 1
+
+fegin:
+  hystrix:
+    enabled: true
