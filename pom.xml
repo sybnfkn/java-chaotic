@@ -21,6 +21,10 @@
     <module>eureka-client</module>
     <module>fegin-api</module>
       <module>redis</module>
+      <module>ByteTCC</module>
+    <module>producer</module>
+    <module>ByteTCC-client</module>
+    <module>ByteTCC-server</module>
   </modules>
 
   <name>java-chaotic</name>

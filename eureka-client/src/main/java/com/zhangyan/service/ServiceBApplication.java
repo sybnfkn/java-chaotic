@@ -8,6 +8,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 @SpringBootApplication
 @EnableEurekaClient
 @EnableFeignClients(basePackages = "com.zhangyan.fegin")
+//@EnableCircuitBreaker
 public class ServiceBApplication {
 
 	public static void main(String[] args) {
