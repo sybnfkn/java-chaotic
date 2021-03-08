@@ -26,7 +26,7 @@ public class AccountServiceConfirm implements IAccountService {
 		System.out.printf("start done decrease: acct= %s, amount= %7.2f%n", acctId, amount);
 		int value = this.jdbcTemplate.update("update tb_account_one set frozen = frozen - ? where acct_id = ?", amount, acctId);
 		if (value != 0) {
-			throw new IllegalStateException("ERROR!");
+			throw new IllegalStateException("ERROR according !");
 		}
 		System.out.printf("done decrease: acct= %s, amount= %7.2f%n", acctId, amount);
 	}
