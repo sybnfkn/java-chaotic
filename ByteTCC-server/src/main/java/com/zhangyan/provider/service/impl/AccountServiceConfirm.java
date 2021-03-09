@@ -11,6 +11,7 @@ public class AccountServiceConfirm implements IAccountService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Deprecated
 	@Transactional
 	public void increaseAmount(String acctId, double amount) {
 		int value = this.jdbcTemplate.update(
@@ -23,9 +24,8 @@ public class AccountServiceConfirm implements IAccountService {
 
 	@Transactional
 	public void decreaseAmount(String acctId, double amount) {
-		System.out.printf("start done decrease: acct= %s, amount= %7.2f%n", acctId, amount);
 		int value = this.jdbcTemplate.update("update tb_account_one set frozen = frozen - ? where acct_id = ?", amount, acctId);
-		if (value != 0) {
+		if (value != 1) {
 			throw new IllegalStateException("ERROR according !");
 		}
 		System.out.printf("done decrease: acct= %s, amount= %7.2f%n", acctId, amount);

@@ -11,6 +11,7 @@ public class AccountServiceCancel implements IAccountService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Deprecated
 	@Transactional
 	public void increaseAmount(String acctId, double amount) {
 		int value = this.jdbcTemplate.update("update tb_account_one set frozen = frozen - ? where acct_id = ?", amount, acctId);
@@ -18,6 +19,7 @@ public class AccountServiceCancel implements IAccountService {
 			throw new IllegalStateException("ERROR!");
 		}
 		System.out.printf("undo increase: acct= %s, amount= %7.2f%n", acctId, amount);
+		throw new IllegalStateException("hahah");
 	}
 
 	@Transactional

@@ -23,6 +23,7 @@ public class AccountController implements IAccountService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Deprecated
 	@ResponseBody
 	@RequestMapping(value = "/increase", method = RequestMethod.POST)
 	@Transactional
@@ -32,6 +33,7 @@ public class AccountController implements IAccountService {
 			throw new IllegalStateException("ERROR!");
 		}
 		System.out.printf("exec increase: acct= %s, amount= %7.2f%n", acctId, amount);
+
 	}
 
 	@ResponseBody
