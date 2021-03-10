@@ -19,6 +19,12 @@ public class UserRegTransactionListener implements TransactionListener {
     @Autowired
     private UserMapper userMapper;
 
+    /**
+     * 如果将这里代码抽取另一个方法中，就可以明确返回commit/rollback
+     * @param msg
+     * @param arg
+     * @return
+     */
     @Override
     @Transactional
     public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
@@ -34,6 +40,7 @@ public class UserRegTransactionListener implements TransactionListener {
             return LocalTransactionState.ROLLBACK_MESSAGE;
         }
         // 返回 UNKNOW 因为此时事务还没有提交
+        // 因为该方法尽管在方法最后一行，但可能发生断电等异常情况，数据库并没有成功。
         return LocalTransactionState.UNKNOW;
     }
 
@@ -46,6 +53,7 @@ public class UserRegTransactionListener implements TransactionListener {
         if(userMapper.selectOne(queryModel) != null ) {
             return LocalTransactionState.COMMIT_MESSAGE;
         } else {
+            // 此时这里就可以明确返回rollback了
             return LocalTransactionState.UNKNOW;
         }
     }
