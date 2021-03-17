@@ -21,11 +21,18 @@
     <module>eureka-client</module>
     <module>fegin-api</module>
       <module>redis</module>
-      <module>ByteTCC</module>
-    <module>producer</module>
+      <!--<module>ByteTCC</module>
+    <module>producer</module>-->
     <module>ByteTCC-client</module>
     <module>ByteTCC-server</module>
+      <module>webflux</module>
   </modules>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.9.RELEASE</version>
+  </parent>
 
   <name>java-chaotic</name>
   <!-- FIXME change it to the project's website -->
