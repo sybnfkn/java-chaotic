@@ -20,7 +20,7 @@ public class UserService implements UserFeginService {
     public String sayHello(@PathVariable("name") String name) {
         System.out.println("..............");
         try {
-            Thread.sleep(20 * 1000);
+            Thread.sleep(5 * 100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -26,6 +26,7 @@
     <module>ByteTCC-client</module>
     <module>ByteTCC-server</module>
       <module>webflux</module>
+      <module>shardingsphere</module>
   </modules>
 
   <parent>
