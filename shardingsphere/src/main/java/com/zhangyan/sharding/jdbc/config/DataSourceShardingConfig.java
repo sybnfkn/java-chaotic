@@ -73,8 +73,8 @@ public class DataSourceShardingConfig {
         // ds${0..1}.t_order_${0..2} 也可以写成 ds$->{0..1}.t_order_$->{0..1}
         tableRule.setActualDataNodes("ds${0..1}.t_order_${0..2}");
         tableRule.setTableShardingStrategyConfig(new InlineShardingStrategyConfiguration("order_id", "t_order_$->{order_id % 3}"));
-//        tableRule.setKeyGenerator(customKeyGenerator());
-        tableRule.setKeyGeneratorColumnName("order_id");
+//        tableRule.setKeyGenerator();
+//        tableRule.setKeyGeneratorColumnName("order_id");
         return tableRule;
     }
 
