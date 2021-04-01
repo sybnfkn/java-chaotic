@@ -19,10 +19,28 @@ public class CouponService {
     @Autowired
     private CouponActivityMapper couponActivityMapper;
 
+    @Autowired
+    private CouponAnotherService couponAnotherService;
+
 
     @Transactional(rollbackFor = Exception.class)
     public void save(CouponActivity couponActivity) {
 
+        couponActivityMapper.insert(couponActivity);
+        // 当前service通过this调用拦截器不生效，理论应该从spring容器中获取当前对象
+//        this.save1();
+        // 调用外部方法
+        couponAnotherService.save();
+    }
+
+    /**
+     *
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void save1() {
+        CouponActivity couponActivity = new CouponActivity();
+        couponActivity.setCouponAmount(200d);
+        couponActivity.setDataPackageId(200L);
         couponActivityMapper.insert(couponActivity);
     }
 

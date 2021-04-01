@@ -24,8 +24,8 @@ public class TestController {
     public void add() {
 
         CouponActivity couponActivity = new CouponActivity();
-        couponActivity.setCouponAmount(250d);
-        couponActivity.setDataPackageId(250L);
+        couponActivity.setCouponAmount(100d);
+        couponActivity.setDataPackageId(100L);
 
         couponService.save(couponActivity);
     }
