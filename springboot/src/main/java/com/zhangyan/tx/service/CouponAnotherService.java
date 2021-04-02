@@ -21,7 +21,8 @@ public class CouponAnotherService {
     private CouponActivityMapper couponActivityMapper;
 
 
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     public void save() {
         CouponActivity couponActivity = new CouponActivity();
         couponActivity.setCouponAmount(300d);

@@ -4,6 +4,7 @@ import com.zhangyan.tx.domain.CouponActivity;
 import com.zhangyan.tx.mapper.CouponActivityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -23,7 +24,8 @@ public class CouponService {
     private CouponAnotherService couponAnotherService;
 
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+@Transactional(rollbackFor = Exception.class)
     public void save(CouponActivity couponActivity) {
 
         couponActivityMapper.insert(couponActivity);
