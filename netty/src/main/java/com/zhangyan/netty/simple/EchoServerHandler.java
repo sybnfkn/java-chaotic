@@ -15,9 +15,13 @@
  */
 package com.zhangyan.netty.simple;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handler implementation for the echo server.
@@ -25,9 +29,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 @Sharable
 public class EchoServerHandler extends ChannelInboundHandlerAdapter {
 
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        ctx.write(msg);
+
+
     }
 
     @Override
@@ -36,9 +42,28 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // 一般需要在这里将channel从业务集合中删除
+        System.out.println();
+        // 模拟关闭连接后，再向socket发送信息
+        String abc = "abc";
+        ByteBuf buffer = Unpooled.buffer(abc.getBytes(StandardCharsets.UTF_8).length);
+        buffer.writeBytes(abc.getBytes(StandardCharsets.UTF_8));
+        ctx.writeAndFlush(buffer);
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // Close the connection when an exception is raised.
         cause.printStackTrace();
+        // 对方连接异常，未发送来FIN，server主动检测到，需要在这里主从关闭socket
+        // 还要将channel从业务结合中删除
         ctx.close();
     }
 }

@@ -1,6 +1,5 @@
 package com.zhangyan.guava;
 
-import com.google.common.util.concurrent.RateLimiter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,12 +9,12 @@ import com.google.common.util.concurrent.RateLimiter;
  * @Description:
  */
 public class RateLimitTest {
-    public static void main(String[] args) {
-        RateLimiter rl = RateLimiter.create(1);
-        while (true) {
-            double acquire = rl.acquire(20);
-
-            System.out.println(acquire);
-        }
-    }
+//    public static void main(String[] args) {
+//        RateLimiter rl = RateLimiter.create(1);
+//        while (true) {
+//            double acquire = rl.acquire(20);
+//
+//            System.out.println(acquire);
+//        }
+//    }
 }
