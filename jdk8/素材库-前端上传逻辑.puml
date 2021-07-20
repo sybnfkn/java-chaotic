@@ -1,0 +1,29 @@
+@startuml
+group 1.获取oss token
+
+前端 -> 素材库server: 上传文件基本信息校验+获取token
+素材库server -> 素材库server : 校验文件格式
+note left: 请求参数：\n 0.租户id \n 1.素材库id \n 2.素材格式 \n 3.文件md5
+素材库server -> 素材库server : 文件md5校验（本期不做预留）
+素材库server -> 素材库server : uuid作为作为唯一标示
+素材库server -> 阿里云 : 获取临时token, accessKey...
+note left: 返回参数: \n 1.阿里云token，accessKey \n 2.bucket + 文件唯一标示
+阿里云 -> 素材库server :
+素材库server -> 前端 : 返回信息
+end
+
+group 2.上传阿里云
+前端 -> 阿里云: 上传文件流到对应bucket中
+阿里云 -> 前端: 返回上传成功
+end
+
+group 3.上传信息
+前端 -> 素材库server: 通知上传成功，重传基本信息
+note right: 请求信息: \n 0.租户id\n  1.素材库id \n 2.素材格式 \n 3.文件md5 \n 4.文件流 \n 5.作者 \n 6.尺寸 \n 7.文件大小 \n 8.文件唯一标示 \n9.上传时间
+素材库server -> 前端: 通知成功
+end
+
+
+
+
+@enduml

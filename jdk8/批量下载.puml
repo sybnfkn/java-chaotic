@@ -1,0 +1,33 @@
+@startuml
+ 前端 -> 素材server : 发起批量下载请求
+ note left:请求参数:\n [素材id]
+ 素材server -> 素材server : 根据素材ID数组，创建task
+ 素材server -> 前端: 返回taskId
+
+ group 异步下载oss文件
+ 素材server -> 素材server:定时任务开始处理下载任务
+ 素材server -> 素材server : 根据任务id，查找素材列表
+ 素材server -> 阿里云OSS: 请求下载
+ 阿里云OSS -> 素材server: 每个文件下载本地的指定文件中
+ 素材server -> 素材server: 对批量文件进行压缩,放到指定文件中（删除之前的批量文件列表）
+ 素材server -> 阿里云OSS : 将压缩文件上传OSS
+ 阿里云OSS -> 素材server : 返回OSS URL
+ 素材server -> 素材server: 1.删除本地临时压缩文件. 2.修改任务状态 3.任务记录添加oss url
+ end
+
+ loop  轮训任务执行结果
+
+
+
+ 前端 -> 素材server: 询问任务是否执行完毕：参数-taskId
+ 素材server -> 素材server: 查询本地任务状态-》未完成
+ 素材server -> 前端: 返回-未完成
+
+
+ 前端 -> 素材server: 询问任务是否执行完毕：参数-taskId
+ 素材server -> 素材server: 查询本地任务状态-完成。
+ 素材server -> 前端: 将OSS URL返回前端
+
+ end
+
+@enduml

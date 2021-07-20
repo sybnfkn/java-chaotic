@@ -4,41 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.example</groupId>
-  <artifactId>java-chaotic</artifactId>
-  <packaging>pom</packaging>
+  <groupId>com.zhangyan</groupId>
+  <artifactId>dubbo-client</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <modules>
-    <module>jdk8</module>
-    <module>rocketmq</module>
-    <module>netty</module>
-      <module>kafka</module>
-      <module>springboot</module>
-    <module>designpattern</module>
-      <module>eureka</module>
-    <module>eureka-client</module>
-    <module>eureka-server</module>
-    <module>eureka-client</module>
-    <module>fegin-api</module>
-      <module>redis</module>
-      <!--<module>ByteTCC</module>
-    <module>producer</module>-->
-    <module>ByteTCC-client</module>
-    <module>ByteTCC-server</module>
-      <module>webflux</module>
-      <module>shardingsphere</module>
-      <module>dubbo-client</module>
-    <module>dubbo-server</module>
-    <module>dubbo-api</module>
-  </modules>
 
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.9.RELEASE</version>
-  </parent>
-
-  <name>java-chaotic</name>
+  <name>dubbo-client</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
