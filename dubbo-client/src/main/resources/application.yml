@@ -1,0 +1,10 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /dubbo-client
+
+spring:
+  dubbo:
+    application:
+      name: dubbo-client
+      registry: zookeeper://8.140.176.63:2181
