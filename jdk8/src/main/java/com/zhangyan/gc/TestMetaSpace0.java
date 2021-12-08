@@ -14,6 +14,14 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 public class TestMetaSpace0 {
 
     public static void main(String[] args) {
+        int i = 0;
+        while (true) {
+            MyFile myFile = new MyFile();
+            myFile.setFileName("abc" + i++);
+            myFile.setFileSize("123" + i++);
+            System.out.println(buildData(myFile));
+        }
+
 
     }
 
@@ -25,5 +33,30 @@ public class TestMetaSpace0 {
         } catch (Exception e) {
             return null;
         }
+    }
+
+
+}
+
+
+class MyFile {
+    private String fileName;
+
+    private String fileSize;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(String fileSize) {
+        this.fileSize = fileSize;
     }
 }
