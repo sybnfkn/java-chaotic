@@ -33,10 +33,12 @@ public class ConsistentHashWithVirtual {
             if(integerStringSortedMap.isEmpty()) {
                 // 取哈希环上的顺时针第⼀台服务器
                 Integer firstKey = hashServerMap.firstKey();
-                System.out.println("==========>>>>客户端：" + client + " 被路由到服务器：" + hashServerMap.get(firstKey));
+                System.out.println("==========>>>>客户端：" + client
+                        + " 被路由到服务器：" + hashServerMap.get(firstKey));
             }else{
                 Integer firstKey = integerStringSortedMap.firstKey();
-                System.out.println("==========>>>>客户端：" + client + " 被路由到服务器：" + hashServerMap.get(firstKey));
+                System.out.println("==========>>>>客户端：" + client
+                        + " 被路由到服务器：" + hashServerMap.get(firstKey));
             }
         }
     }
